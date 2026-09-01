@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "nucleo-blue-led",
+    "embassy-blue-led",
+    "nucleo-bitbang",
+]

@@ -1,0 +1,19 @@
+/target
+**/target
+Cargo.lock
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Neovim
+.nvim.lua
+
+# Embedded tools
+*.pdf
+
+# jj version control
+.jj/
