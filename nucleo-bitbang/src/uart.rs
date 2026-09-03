@@ -18,16 +18,22 @@ impl<'a> BitBangUart<'a> {
     }
     pub async fn start_transfer_8n1(&mut self, send_buf: &[u8], message: &[u8]) {
         for &byte in message {
+            let mut ones_count = 0;
             self.tx.set_high(); //start bit
             self.tx.set_low(); // start
             Timer::after(self.bit_duration).await;
 
             for i in 0..8 {
                 if (byte >> i) & 1 == 1 {
+                    ones_count += 1;
                     self.tx.set_high();
                 } else {
                     self.tx.set_low();
                 }
+                Timer::after(self.bit_duration).await;
+            }
+            if ones_count % 2 == 0 { //odd parity - if even amount of bits sent then add one
+                self.tx.set_high();
                 Timer::after(self.bit_duration).await;
             }
         }
