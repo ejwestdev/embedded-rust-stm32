@@ -52,22 +52,17 @@ impl<'a> BitBangSpi<'a> {
         received
     }
 
-    pub async fn start_transfer(&mut self, tx: &[u8], rx: &mut [u8]) {
+    pub async fn start_transfer(&mut self, send_buf: &[u8], recv_buf: &mut [u8]) {
         self.cs.set_low();
-        for (i, &byte) in tx.iter().enumerate() {
-            rx[i] = self.spi_transfer(byte).await;
+        for (i, &byte) in send_buf.iter().enumerate() {
+            recv_buf[i] = self.spi_transfer(byte).await;
         }
         self.cs.set_high();
     }
 }
-pub async fn spi_bitbang_test(p: embassy_stm32::Peripherals) {
-    let sck = Output::new(p.PA5, Level::Low, Speed::High);
-    let pico = Output::new(p.PA7, Level::Low, Speed::High);
-    let poci = Input::new(p.PA6, Pull::None);
-    let cs = Output::new(p.PA4, Level::High, Speed::High);
-
+pub async fn spi_bitbang(sck: Output<'_>, pico: Output<'_>, poci: Input<'_>, cs: Output<'_>) {
     let mut spi = BitBangSpi::new(sck, pico, poci, cs, 500);
 
-    let mut rx = [1, 1, 1, 1, 1, 1, 1, 1];
-    spi.start_transfer(&[0xf9], &mut rx).await;
+    let mut recv_buf = [1, 1, 1, 1, 1, 1, 1, 1];
+    spi.start_transfer(&[0xf9], &mut recv_buf).await;
 }

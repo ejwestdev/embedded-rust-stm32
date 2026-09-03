@@ -1,6 +1,42 @@
+use defmt_rtt as _;
 use embassy_stm32::gpio::{Input, Level, Output, Pull, Speed};
 use embassy_time::{Duration, Timer};
+pub struct BitBangUart<'a> {
+    tx: Output<'a>,
+    rx: Input<'a>,
+    bit_duration: Duration,
+}
 
-pub async fn uart_bitbang(p: embassy_stm32::Peripherals) {
-    todo!()
+impl<'a> BitBangUart<'a> {
+    pub fn new(tx: Output<'a>, rx: Input<'a>, baud: u32) -> Self {
+        let bit_duration = Duration::from_nanos(1_000_000_000 / baud as u64);
+        Self {
+            tx,
+            rx,
+            bit_duration,
+        }
+    }
+    pub async fn start_transfer(&mut self, send_buf: &[u8], message: &[u8]) {
+        for &byte in message {
+            self.tx.set_low(); // start 
+            Timer::after(self.bit_duration).await;
+
+            for i in 0..8 {
+                if (byte >> i) & 1 == 1 {
+                    self.tx.set_high();
+                } else {
+                    self.tx.set_low();
+                }
+                Timer::after(self.bit_duration).await;
+            }
+        }
+        self.tx.set_high();
+        Timer::after(self.bit_duration).await;
+    }
+}
+pub async fn uart_bitbang(tx: Output<'_>, rx: Input<'_>) {
+    let mut uart = BitBangUart::new(tx, rx, 9600);
+
+    let msg: &[u8] = b"Hello, Uart!";
+    uart.start_transfer(&[0xf9], msg).await;
 }
