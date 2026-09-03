@@ -16,7 +16,7 @@ impl<'a> BitBangUart<'a> {
             bit_duration,
         }
     }
-    pub async fn start_transfer_8n1(&mut self, send_buf: &[u8], message: &[u8]) {
+    pub async fn start_transfer_8o1(&mut self, message: &[u8]) {
         for &byte in message {
             let mut ones_count = 0;
             self.tx.set_high(); //start bit
@@ -32,7 +32,8 @@ impl<'a> BitBangUart<'a> {
                 }
                 Timer::after(self.bit_duration).await;
             }
-            if ones_count % 2 == 0 { //odd parity - if even amount of bits sent then add one
+            if ones_count % 2 == 0 {
+                //odd parity - if even amount of bits sent then add one
                 self.tx.set_high();
                 Timer::after(self.bit_duration).await;
             }
@@ -46,5 +47,5 @@ pub async fn uart_bitbang(tx: Output<'_>, rx: Input<'_>) {
     let mut uart = BitBangUart::new(tx, rx, 9600);
 
     let msg: &[u8] = b"Hello, Uart!";
-    uart.start_transfer_8n1(&[0xf9], msg).await;
+    uart.start_transfer_8o1(msg).await;
 }
