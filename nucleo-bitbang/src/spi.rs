@@ -1,6 +1,7 @@
 use defmt_rtt as _;
 use embassy_stm32::gpio::{Input, Level, Output, Pull, Speed};
-use embassy_time::{Duration, Instant, Timer};
+use embassy_time::{Duration, Timer};
+#[allow(dead_code)]
 pub struct BitBangSpi<'a> {
     sck: Output<'a>,
     pico: Output<'a>,
