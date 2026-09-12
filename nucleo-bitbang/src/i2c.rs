@@ -34,11 +34,13 @@ impl<'a> BitBangI2C<'a> {
         if acked { 0 } else { 1 }
     }
     pub async fn start_transfer(&mut self, recv_buf: &mut [u8], data_buf: &[u8]) {
+        let addr = 0x3C;
         self.sda.set_low();
         Timer::after(self.delay).await;
         self.scl.set_low();
         Timer::after(self.delay).await;
 
+        self.i2c_transfer(addr << 1).await;
         for (i, &byte) in data_buf.iter().enumerate() {
             recv_buf[i] = self.i2c_transfer(byte).await;
         }
