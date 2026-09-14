@@ -22,15 +22,15 @@ impl<'a> BitBangI2C<'a> {
             if bit {
                 self.sda.set_high();
             } else {
-                self.sda.set_low();
+                self.sda.set_low()
             }
+
             Timer::after(self.delay).await;
-            self.scl.set_high(); // slave samples the bit here
+            self.scl.set_high();
             Timer::after(self.delay).await;
             self.scl.set_low();
             Timer::after(self.delay).await;
         }
-
         self.sda.set_high();
         Timer::after(self.delay).await;
         self.scl.set_high();
@@ -38,8 +38,10 @@ impl<'a> BitBangI2C<'a> {
         let acked = self.sda.is_low();
         self.scl.set_low();
         Timer::after(self.delay).await;
-
-        if acked { Ok(()) } else { Err(I2cError::Nack) }
+        if !acked {
+            return Err(I2cError::Nack);
+        }
+        Ok(())
     }
     pub async fn start_transfer(&mut self, ack_buf: &mut [u8], data_buf: &[u8]) {
         let addr = 0x3C;
