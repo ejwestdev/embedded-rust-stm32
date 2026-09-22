@@ -8,6 +8,7 @@ embassy-stm32 = { version = "0.6.0", features = [
   "stm32u575zi",
   "memory-x",
   "time-driver-tim2",
+  "unstable-pac",
 ] }
 embassy-executor = { version = "0.9.0", features = [
   "arch-cortex-m",
