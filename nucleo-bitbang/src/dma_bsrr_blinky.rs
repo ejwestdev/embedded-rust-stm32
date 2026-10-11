@@ -22,17 +22,6 @@ pub const fn bsrr_rst(pin: u8) -> u32 {
     1 << (pin + 16)
 }
 
-// fn tim6_start() {
-//     embassy_stm32::rcc::enable_and_reset::<peripherals::TIM6>();
-//     let tim = pac::TIM6;
-//     // 16 MHz / 16000 = 1 kHz counter, update every 250 counts = 4 Hz.
-//     tim.psc().write_value(16_000 - 1);
-//     tim.arr().write(|w| w.set_arr(250 - 1));
-//     tim.egr().write(|w| w.set_ug(true)); // latch PSC/ARR
-//     tim.dier().modify(|w| w.set_ude(true)); // raise a DMA request on update
-//     tim.cr1().modify(|w| w.set_cen(true));
-// }
-
 pub async fn dma_blinky(
     target: Peri<'_, AnyPin>,
     dma_ch: Peri<'_, peripherals::GPDMA1_CH0>,
@@ -51,7 +40,6 @@ pub async fn dma_blinky(
     ];
     let options = TransferOptions::default();
     let peri_addr = pac::GPIOB.bsrr().as_ptr() as *mut u32;
-    // tim6_start();
     let timer = Timer::new(timer_pin);
     timer.set_frequency(Hertz(4), Faster);
     timer.enable_update_dma(true);
